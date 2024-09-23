@@ -85,7 +85,7 @@ export const Register = CatchAsyncErrors(async (req, res, next) => {
         try {
           const cloudinaryResponse = await cloudinary.uploader.upload(
             coverLetter.tempFilePath,
-            { folder: "Job_Seekers_CoverLatter" }
+            { folder: "Job_Seekers_coverLetter" }
           );
           if (!cloudinaryResponse || cloudinaryResponse.error) {
             return next(
@@ -164,14 +164,12 @@ export const UpdateProfile = CatchAsyncErrors(async (req, res, next) => {
     email: req.body.email,
     phone: req.body.phone,
     address: req.body.address,
-    password: req.body.password,
-    role: req.body.role,
+    role: req.user.role,
     niches: {
       firstNiche: req.body.firstNiche,
       secondNiche: req.body.secondNiche,
       thirdNiche: req.body.thirdNiche,
     },
-    coverLetter: req.body.coverLetter,
   }
   const { firstNiche, secondNiche, thirdNiche } = newUserData.niches
   if (req.user.role === "Job Seeker" && (!firstNiche || !secondNiche || !thirdNiche)) {
@@ -179,6 +177,9 @@ export const UpdateProfile = CatchAsyncErrors(async (req, res, next) => {
   }
   if (req.files) {
     const { resume } = req.files;
+    const { coverLetter } = req.files;
+    console.log(req.files);
+
     if (resume) {
       const currentResume = req.user.resume.public_id;
       if (currentResume) {
@@ -196,6 +197,7 @@ export const UpdateProfile = CatchAsyncErrors(async (req, res, next) => {
           );
         }
         newUserData.resume = {
+          name: resume.name,
           public_id: cloudinaryResponse.public_id,
           url: cloudinaryResponse.secure_url,
         };
@@ -205,7 +207,38 @@ export const UpdateProfile = CatchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler("Failed to upload resume", 500));
       }
     }
+    if (coverLetter) {
+      
+      const currentcoverLetter = req.user.coverLetter.public_id;
+      if (currentcoverLetter) {
+        await cloudinary.uploader.destroy(currentcoverLetter)
+      }
+
+      try {
+        const cloudinaryResponse = await cloudinary.uploader.upload(
+          coverLetter.tempFilePath,
+          { folder: "Job_Seekers_Cover_Latter" }
+        );
+        if (!cloudinaryResponse || cloudinaryResponse.error) {
+          return next(
+            new ErrorHandler("Failed to upload coverLetter to cloud.", 500)
+          );
+        }
+        newUserData.coverLetter = {
+          name: coverLetter.name,
+          public_id: cloudinaryResponse.public_id,
+          url: cloudinaryResponse.secure_url,
+        };
+
+
+      } catch (error) {
+        return next(new ErrorHandler("Failed to upload coverLetter", 500));
+      }
+    }
   }
+  // console.log(newUserData);
+  // console.log(req.user);
+  
   const user = await User.findByIdAndUpdate(req.user.id, newUserData, { new: true, runValidators: true, useFindAndModify: false })
   res.status(200).json({
     success: true,

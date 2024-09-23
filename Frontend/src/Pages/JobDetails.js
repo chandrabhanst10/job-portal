@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { Box, Button, Chip, Typography } from '@mui/material'
 import axiosInstance from '../Utils/AxiosConfig.js'
@@ -8,12 +8,14 @@ import LoadingComponent from '../Components/LoadingComponent.js'
 import { useDispatch, useSelector } from 'react-redux'
 import { SaveJob, UnSaveJob } from '../Store/Slices/JobSlice.js'
 import { GetUserProfile } from '../Store/Slices/UserSlice.js'
+import { PostNewApplication } from '../Store/Slices/ApplicationSlice.js'
 
 const JobDetails = () => {
+    const Navigate = useNavigate();
     const params = useParams()
     const [jobDetails, setJobDetails] = useState()
     const [loading, setLoading] = useState(false)
-    const dispatch=useDispatch()
+    const dispatch = useDispatch()
     const [isSaved, setIsSaved] = useState(false)
     const { userProfileData } = useSelector(state => state.user)
     const isSavedJob = () => {
@@ -41,23 +43,46 @@ const JobDetails = () => {
     useEffect(() => {
         GetJobDetails(params.id)
         isSavedJob()
-    },[params.id])
+    }, [params.id])
 
     const saveJob = () => {
         dispatch(SaveJob(params.id))
         dispatch(GetUserProfile())
         setIsSaved(userProfileData.savedJobs.includes(params.id))
-      };
-      const unSaveJob = () => { 
+    };
+    const unSaveJob = () => {
         dispatch(UnSaveJob(params.id))
         dispatch(GetUserProfile())
         setIsSaved(userProfileData.savedJobs.includes(params.id))
-      };
+    };
+    const sendApplication = () => {
+        console.log(userProfileData.coverLetter);
+        
+        if (
+            userProfileData?.resume?.name === "" ||
+            userProfileData?.resume?.name === undefined ||
+            userProfileData?.coverLetter===null ||
+            userProfileData?.coverLetter?.name === "" ||
+            userProfileData?.coverLetter?.name === undefined) {
+            Navigate("/update-profile")
+            return toast.error("Please Upload Resume and Cover Letter to apply for any job")
+        }
+
+        const payload = {
+            name: userProfileData.name,
+            email: userProfileData.email,
+            phone: userProfileData.phone,
+            address: userProfileData.address,
+            resume: userProfileData.resume,
+            coverLetter: userProfileData.coverLetter,
+            jobId: params.id
+        }
+        dispatch(PostNewApplication(payload))
+    }
     return (
         <JobDetailsContainer>
             <LoadingComponent loading={loading} />
             <Box>
-
                 <Typography className='jobTitle' variant='h4'>{jobDetails?.title} - <Chip size='medium' label={jobDetails?.jobType} /></Typography>
                 <Box className="jobDetalsBox">
                     <Typography variant='subtitle1' className='label'>Company Name : </Typography>
@@ -77,10 +102,9 @@ const JobDetails = () => {
                 <Typography className='responsibiliteis' color='gray'>{jobDetails?.responsibilities}</Typography>
             </Box>
             <Box className="buttonContainer">
-                <Button variant='outlined' fullWidth onClick={isSaved?unSaveJob:saveJob}>{isSaved?"Un Save Job":"Save Job"}</Button>
-                <Button variant='contained' fullWidth>Apply</Button>
+                <Button variant='outlined' fullWidth onClick={isSaved ? unSaveJob : saveJob}>{isSaved ? "Un Save Job" : "Save Job"}</Button>
+                <Button variant='contained' fullWidth onClick={sendApplication}>Apply</Button>
             </Box>
-
         </JobDetailsContainer>
     )
 }

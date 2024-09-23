@@ -8,7 +8,9 @@ export const PostApplication = CatchAsyncErrors(async (req, res, next) => {
     const { id } = req.params
 
     const { name, email, phone, address, coverLetter, resume } = req.body;
-    if (!name || !email || !phone || !address || !coverLetter) {
+    console.log(req.body);
+    
+    if (!name || !email || !phone || !address) {
         return next(new ErrorHandler("All fields are required", 400))
     }
     const jobSeekerInfo = {

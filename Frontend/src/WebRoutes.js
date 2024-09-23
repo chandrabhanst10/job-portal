@@ -17,6 +17,7 @@ import UpdatePassword from './Pages/UpdatePassword.js'
 import PostNewJob from './Pages/PostNewJob.js'
 import { Authentication, AuthRoute } from './Utils/Authentication.js'
 import { useSelector } from 'react-redux'
+import Application from './Pages/Application.js'
 const WebRoutes = () => {
   const { userProfileData } = useSelector((state) => state.user);
   return (
@@ -41,6 +42,7 @@ const WebRoutes = () => {
             </> }
             <Route path='/login' element={<AuthRoute><Login /></AuthRoute>} />
             <Route path='/register' element={<AuthRoute><Register /></AuthRoute>} />
+            <Route path='/create-application' element={<Authentication><Application /></Authentication>} />
           </Routes>
         </WebRoutesContainer>
       </Box>

@@ -26,8 +26,10 @@ const SideBar = () => {
                     {userProfileData?.role==="Employer"&&
                     <Link className='menuItem' to={"/post-new-job"}><MenuItem className="menuItem">Post New Job</MenuItem></Link>
                     }
+                    {userProfileData?.role==="Employer"&&
                     <Link className='menuItem' to={"/"}><MenuItem className="menuItem">My Jobs</MenuItem></Link>
-                    <Link className='menuItem' to={"/"}><MenuItem className="menuItem">Applications</MenuItem></Link>
+                    }
+                    <Link className='menuItem' to={"/create-application"}><MenuItem className="menuItem">Applications</MenuItem></Link>
                     <MenuItem onClick={logout}>Logout</MenuItem>
                 </>
                 : ""

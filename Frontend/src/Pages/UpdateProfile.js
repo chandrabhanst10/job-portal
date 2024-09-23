@@ -15,7 +15,7 @@ const UpdateProfile = () => {
     const [secondNiche, setSecondNiche] = useState("")
     const [thirdNiche, setThirdNiche] = useState("")
     const [resume, setResume] = useState("")
-    const [coverLatter, setCoverLatter] = useState("")
+    const [coverLetter, setcoverLetter] = useState("")
     const [nicheList, setNicheList] = useState([])
     const { userProfileData } = useSelector((state) => state.user);
     const dispatch = useDispatch()
@@ -68,8 +68,8 @@ const UpdateProfile = () => {
     const resumeChange = (event) => {
         setResume(event.target.files)
     }
-    const coverLatterChange = (event) => {
-        setCoverLatter(event.target.files)
+    const coverLetterChange = (event) => {
+        setcoverLetter(event.target.files)
     }
     const onSubmit = () => {
         const payload = {
@@ -80,7 +80,7 @@ const UpdateProfile = () => {
             firstNiche: firstNiche,
             secondNiche: secondNiche,
             thirdNiche: thirdNiche,
-            coverLatter: userProfileData?.coverLatter?.name === coverLatter[0]?.name ? userProfileData?.coverLatter?.url : coverLatter[0],
+            coverLetter: userProfileData?.coverLetter?.name === coverLetter[0]?.name ? userProfileData?.coverLetter?.url : coverLetter[0],
             resume: userProfileData?.resume?.name === resume[0]?.name ? userProfileData?.resume?.url : resume[0],
         }
         dispatch(UpdateProfileAction(payload))
@@ -170,12 +170,12 @@ const UpdateProfile = () => {
                         Upload Cover Latter
                         <input
                             type="file"
-                            onChange={coverLatterChange}
+                            onChange={coverLetterChange}
                             multiple={false}
                             style={{ display: "none" }}
                         />
                     </Button>
-                    <Typography variant='subtitle1'>{userProfileData?.coverLetter?.name ? userProfileData?.coverLetter?.name : coverLatter[0]?.name}</Typography>
+                    <Typography variant='subtitle1'>{userProfileData?.coverLetter?.name ? userProfileData?.coverLetter?.name : coverLetter[0]?.name}</Typography>
                 </Grid>
             </>}
             <Grid item xs={12} sm={12} md={12} lg={12}>
