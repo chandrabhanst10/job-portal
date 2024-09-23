@@ -120,7 +120,7 @@ export const JobDetails = CatchAsyncErrors(async (req, res, next) => {
     const { id } = req.params
     const job = await Jobs.findById(id);
 
-    
+
     if (!job) {
         return next(new ErrorHandler("Job not found", 404));
     }
@@ -129,3 +129,53 @@ export const JobDetails = CatchAsyncErrors(async (req, res, next) => {
         job: job,
     })
 });
+
+export const SaveJob = CatchAsyncErrors(async (req, res) => {
+    const { id } = req.params
+    const user = req.user
+    if (user.role === "Job Seeker") {
+        if(!user.savedJobs.includes(id)){
+            user.savedJobs.push(id)
+            user.save()
+            res.status(200).json({ success: true,message:"Job saved successfully",user:user })
+        }else{
+            res.status(201).json({ success: false,message:"Job already saved successfully" })
+        }
+    }else{
+        res.status(301).json({ succss: false,message:"Employer can not save jobs" })
+    }
+})
+
+export const UnSaveJob = CatchAsyncErrors(async (req, res) => {
+    const { id } = req.params
+    const user = req.user
+    if (user.role === "Job Seeker") {
+        if(user.savedJobs.includes(id)){
+            let initialIndex=user.savedJobs.indexOf(id)
+            user.savedJobs.splice(initialIndex,1)
+            user.save()
+            res.status(200).json({ success: true,message:"Job un-saved successfully",user:user })
+        }else{
+            res.status(201).json({ success: false,message:"Job Not Found" })
+        }
+    }else{
+        res.status(301).json({ succss: false,message:"Employer can not save jobs" })
+    }
+})
+
+// export const GetAllSavedJobs = CatchAsyncErrors(async (req, res) => {
+//     const { id } = req.params
+//     const user = req.user
+//     if (user.role === "Job Seeker") {
+//         if(user.savedJobs.includes(id)){
+//             let initialIndex=user.savedJobs.indexOf(id)
+//             user.savedJobs.splice
+//             user.save()
+//             res.status(200).json({ success: true,message:"job un-saved successfully",user:user })
+//         }else{
+//             res.status(201).json({ success: false,message:"Job Not Found" })
+//         }
+//     }else{
+//         res.status(301).json({ succss: false,message:"Employer can not save jobs" })
+//     }
+// })

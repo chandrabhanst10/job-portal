@@ -11,6 +11,8 @@ import { useSelector } from 'react-redux';
 const Home = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const {userProfileData}=useSelector((state)=>state.user)
+  const {allJobs}=useSelector((state)=>state.job)
+  
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -34,7 +36,7 @@ const Home = () => {
           <CardContainer>
             <TextContainer>
               <Typography variant="h4" component="div" fontWeight="bold">
-                589
+                {allJobs.length}
               </Typography>
               <Typography variant="subtitle1" color="textSecondary">
                 Open Jobs
@@ -49,7 +51,7 @@ const Home = () => {
           <CardContainer2>
             <TextContainer>
               <Typography variant="h4" component="div" fontWeight="bold">
-                589
+                {userProfileData?.savedJobs.length}
               </Typography>
               <Typography variant="subtitle1" color="textSecondary">
                 Saved Jobs

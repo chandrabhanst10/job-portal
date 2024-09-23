@@ -5,11 +5,20 @@ import { Box, Button, Chip, Typography } from '@mui/material'
 import axiosInstance from '../Utils/AxiosConfig.js'
 import { toast } from 'react-toastify'
 import LoadingComponent from '../Components/LoadingComponent.js'
+import { useDispatch, useSelector } from 'react-redux'
+import { SaveJob, UnSaveJob } from '../Store/Slices/JobSlice.js'
+import { GetUserProfile } from '../Store/Slices/UserSlice.js'
 
 const JobDetails = () => {
     const params = useParams()
     const [jobDetails, setJobDetails] = useState()
     const [loading, setLoading] = useState(false)
+    const dispatch=useDispatch()
+    const [isSaved, setIsSaved] = useState(false)
+    const { userProfileData } = useSelector(state => state.user)
+    const isSavedJob = () => {
+        setIsSaved(userProfileData?.savedJobs.includes(params.id))
+    }
     const GetJobDetails = (id) => {
         setLoading(true);
         axiosInstance.get(`api/jobs/job-details/${id}`, {
@@ -31,8 +40,19 @@ const JobDetails = () => {
     }
     useEffect(() => {
         GetJobDetails(params.id)
+        isSavedJob()
     },[params.id])
-    
+
+    const saveJob = () => {
+        dispatch(SaveJob(params.id))
+        dispatch(GetUserProfile())
+        setIsSaved(userProfileData.savedJobs.includes(params.id))
+      };
+      const unSaveJob = () => { 
+        dispatch(UnSaveJob(params.id))
+        dispatch(GetUserProfile())
+        setIsSaved(userProfileData.savedJobs.includes(params.id))
+      };
     return (
         <JobDetailsContainer>
             <LoadingComponent loading={loading} />
@@ -57,7 +77,7 @@ const JobDetails = () => {
                 <Typography className='responsibiliteis' color='gray'>{jobDetails?.responsibilities}</Typography>
             </Box>
             <Box className="buttonContainer">
-                <Button variant='outlined' fullWidth>Save Job</Button>
+                <Button variant='outlined' fullWidth onClick={isSaved?unSaveJob:saveJob}>{isSaved?"Un Save Job":"Save Job"}</Button>
                 <Button variant='contained' fullWidth>Apply</Button>
             </Box>
 

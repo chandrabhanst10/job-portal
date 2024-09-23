@@ -54,6 +54,10 @@ const UserSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    savedJobs: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      }],
 });
 UserSchema.pre("save", async function (next) {
     if (!this.isModified("password")) {

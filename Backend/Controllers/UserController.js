@@ -4,9 +4,7 @@ import { User } from "../Models/UserSchema.js";
 import { v2 as cloudinary } from "cloudinary";
 import { Token } from '../Utils/Token.js'
 
-export const Register = CatchAsyncErrors(async (req, res, next) => {
-  console.log("ASDfasdfdasfds");
-  
+export const Register = CatchAsyncErrors(async (req, res, next) => {  
   try {
     const {
       name,

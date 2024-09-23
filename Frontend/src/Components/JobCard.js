@@ -1,9 +1,19 @@
 import { Box, Button, Card, CardActions, CardContent, CardMedia, IconButton, Typography } from '@mui/material'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import JobCardImg from "../Assets/jobCardImg.jpg"
 import BookmarkBorderOutlinedIcon from '@mui/icons-material/BookmarkBorderOutlined';
-const JobCard = ({ jobId, title, jobType, location, companyName, showJob }) => {
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import { useSelector } from 'react-redux';
+const JobCard = ({ jobId, title, jobType, location, companyName, showJob, saveJob, unSaveJob }) => {
+    const [isSaved, setIsSaved] = useState(false)
+    const { userProfileData } = useSelector(state => state.user)
+    useEffect(() => {
+        isSavedJob()
+    })
+    const isSavedJob = () => {
+        setIsSaved(userProfileData.savedJobs.includes(jobId))
+    }
     return (
         <JobCardContainer>
             <Card>
@@ -15,9 +25,15 @@ const JobCard = ({ jobId, title, jobType, location, companyName, showJob }) => {
                         image={JobCardImg}
                     />
                     <Box className='saveIconContainer'>
-                        <IconButton>
-                            <BookmarkBorderOutlinedIcon className='saveIcon'/>
-                        </IconButton>
+                        {
+                            isSaved ?
+                                <IconButton onClick={() => unSaveJob(jobId)}>
+                                    <BookmarkIcon className='saveIcon' />
+                                </IconButton> :
+                                <IconButton onClick={() => saveJob(jobId)}>
+                                    <BookmarkBorderOutlinedIcon className='saveIcon' />
+                                </IconButton>
+                        }
                     </Box>
                 </Box>
                 <CardContent>
@@ -53,6 +69,6 @@ const JobCardContainer = styled(Box)({
         top: "8px"
     },
     "& .saveIcon": {
-        color:"#fff"
+        color: "#fff"
     }
 })

@@ -1,42 +1,21 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Box, Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
 import styled from 'styled-components';
 import { cityOptions, jobNicheOptions } from '../Utils/Config.js';
 import { useNavigate } from 'react-router-dom';
 import JobCard from '../Components/JobCard.js';
-import axiosInstance from '../Utils/AxiosConfig.js';
-import { toast } from 'react-toastify';
 import LoadingComponent from '../Components/LoadingComponent.js';
+import { useDispatch, useSelector } from "react-redux"
+import { SaveJob, UnSaveJob } from "../Store/Slices/JobSlice.js"
+
 const Jobs = () => {
   const [city, setcity] = useState("")
   const [niche, setNiche] = useState("")
   const [search, setSearch] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [jobList, setJobList] = useState([])
   const navigate = useNavigate()
-  useEffect(() => {
-    GetAllJobs()
-  }, []);
-  const GetAllJobs = () => {
-    setLoading(true);
-    axiosInstance.get("/api/jobs/all-jobs", {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      }
-    }).then((response) => {
-      if (response.data.success) {
-        setLoading(false);
-        toast.success(response.data.message)
-        setJobList(response.data.jobs);
+  const dispatch = useDispatch()
+  const { allJobs, loading } = useSelector(state => state.job)
 
-      } else {
-        toast.warning(response.data.message)
-      }
-    }).catch((error) => {
-      setLoading(false);
-      console.error("Error:", error.response || error.message);
-    });
-  }
   const handleCityChange = (event) => {
     setcity(event.target.value);
   };
@@ -48,8 +27,13 @@ const Jobs = () => {
   };
   const applyNow = (jobId) => {
     navigate(`/jobs-details/${jobId}`)
-  }
-
+  };
+  const saveJob = (jobId) => {
+    dispatch(SaveJob(jobId))
+  };
+  const unSaveJob = (jobId) => { 
+    dispatch(UnSaveJob(jobId))
+  };
   return (
     <JobsContainer>
       <LoadingComponent loading={loading} />
@@ -62,7 +46,6 @@ const Jobs = () => {
               <Select
                 value={city}
                 onChange={handleCityChange}
-
               >
                 {cityOptions.map((city) => (
                   <MenuItem key={city.value} value={city.value}>
@@ -89,42 +72,37 @@ const Jobs = () => {
           </Grid>
           <Grid item xs={12} sm={12} md={3} lg={3}><TextField fullWidth placeholder='Enter search text' value={search} onChange={handleSearchChange} /></Grid>
           <Grid item xs={12} sm={12} md={3} lg={3}>
-          <Button variant='contained' className='searchBtn' fullWidth>Search</Button>
-
+            <Button variant='contained' className='searchBtn' fullWidth>Search</Button>
           </Grid>
         </Grid>
-
-
-
       </Box>
-      <AllJobs jobList={jobList} applyNow={applyNow} />
+      <AllJobs jobList={allJobs} applyNow={applyNow} saveJob={saveJob} unSaveJob={unSaveJob} />
     </JobsContainer>
   )
 }
 
 export default Jobs
-const AllJobs = ({ jobList, applyNow }) => {
 
+const AllJobs = ({ jobList, applyNow, saveJob, unSaveJob }) => {
   return <Box>
     <Grid container spacing={2}>
       {
         jobList.map((job, index) => {
           return <Grid item xs={12} sm={6} md={4} lg={4} key={index}>
-            <JobCard jobId={job._id} title={job.title} jobType={job.jobType} companyName={job.companyName} location={job.location} showJob={applyNow} />
+            <JobCard jobId={job._id} title={job.title} jobType={job.jobType} companyName={job.companyName} location={job.location} showJob={applyNow} saveJob={saveJob} unSaveJob={unSaveJob} />
           </Grid>
         })
       }
     </Grid>
   </Box>
 }
-
 const JobsContainer = styled(Box)({
   "& .searchContainer": {
     display: "flex",
     margin: "20px 0px",
     gap: "20px"
   },
-  "& .searchBtn":{
-    height:"55px"
+  "& .searchBtn": {
+    height: "55px"
   }
 })
